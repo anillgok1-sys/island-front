@@ -1,18 +1,18 @@
 @echo off
 chcp 65001 >nul
 echo ========================================================
-echo   ISLAND FRONT - GitHub + Render/Railway Bulut Yukleyici
+echo   ISLAND FRONT - GitHub Baglantisi ve Otomatik Yukleme
 echo ========================================================
 echo.
-echo [1/2] GitHub (https://github.com/anillgok1-sys/island-front) deposuna gonderiliyor...
-echo       (Eger GitHub'da 'island-front' adinda bos bir repo acmadiysaniz once tarayicida acilacak sayfadan olusturun)
-start https://github.com/new?name=island-front^&description=ISLAND+FRONT+3D+Open+World+Multiplayer+Warfare
-pause
+echo [1/3] GitHub tarayici yetkisi baglaniyor (Tarayicida 'Authorize' butonuna tiklayin)...
+git credential-manager github login --browser
+echo.
+echo [2/3] Oyun kodlari https://github.com/anillgok1-sys/island-front deposuna yukleniyor...
 git branch -M main
 git push -u origin main
 echo.
-echo [2/2] Render veya Railway uzerinden tek tikla yayina almak icin:
-echo       - Render:  https://dashboard.render.com/select-repo?type=web
-echo       - Railway: https://railway.app/new/github
+echo [3/3] Render.com dagitim ekrani aciliyor ('island-front' reposunu secip Deploy'a basin)...
 start https://dashboard.render.com/select-repo?type=web
+echo.
+echo Tamamlandi! Artik GitHub yetkisi Windows'a kaydedildi.
 pause
