@@ -281,7 +281,7 @@ export class Game {
 
   sanitizeName(name) {
     if (typeof name !== 'string') return '';
-    return name.replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 16);
+    return name.replace(/[\u0000-\u001f<>"'&`]/g, '').trim().slice(0, 16);
   }
 
   onJoin(ws, msg) {

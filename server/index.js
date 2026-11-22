@@ -161,6 +161,9 @@ const server = http.createServer((req, res) => {
   const headers = {
     'Content-Type': asset.type,
     'Cache-Control': 'public, max-age=30, must-revalidate',
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'SAMEORIGIN',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
     ETag: asset.etag,
   };
   if (acceptGzip) {
@@ -176,8 +179,41 @@ const server = http.createServer((req, res) => {
 });
 
 const wss = new WebSocketServer({ server, path: '/ws', maxPayload: 16384 });
+const ipConnections = new Map();
+const MAX_CONNS_PER_IP = 12;
+
+function getClientIp(req) {
+  const fwd = req.headers['x-forwarded-for'];
+  if (typeof fwd === 'string' && fwd.length > 0) {
+    return fwd.split(',')[0].trim();
+  }
+  return req.socket?.remoteAddress || 'unknown';
+}
+
+function isLoopbackIp(ip) {
+  return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
+}
 
 wss.on('connection', (ws, req) => {
+  const ip = getClientIp(req);
+  if (!isLoopbackIp(ip)) {
+    const active = ipConnections.get(ip) || 0;
+    if (active >= MAX_CONNS_PER_IP) {
+      try {
+        ws.close(1008, 'Aynı IP üzerinden maksimum bağlantı sınırına ulaşıldı.');
+      } catch {
+        // yoksay
+      }
+      return;
+    }
+    ipConnections.set(ip, active + 1);
+    ws.on('close', () => {
+      const cur = ipConnections.get(ip) || 1;
+      if (cur <= 1) ipConnections.delete(ip);
+      else ipConnections.set(ip, cur - 1);
+    });
+  }
+
   let reqRoom = null;
   try {
     const u = new URL(req.url, 'http://localhost');
