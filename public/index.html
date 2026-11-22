@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0d1418" />
+  <title>ISLAND FRONT — 3B Açık Dünya Ada Savaşı</title>
+  <meta name="description" content="Tarayıcıda oynanan çok oyunculu 3B açık dünya ada savaşı. Özel kuvvetler, 3 kişilik hücum botları, taktik scooterlar ve 7 stratejik üs." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="ISLAND FRONT — 3B Açık Dünya Ada Savaşı" />
+  <meta property="og:description" content="Kızıllar ve Maviler tek bir adada karşı karşıya. 7 stratejik üssü ele geçir, hücum botu ve taktik scooter ile cepheye yetiş!" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ISLAND FRONT — 3B Açık Dünya Ada Savaşı" />
+  <meta name="twitter:description" content="Tarayıcıda 3B çok oyunculu açık dünya ada savaşı. Hemen tıkla ve savaşa katıl!" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div id="loading">
+    <div class="load-mark">IF</div>
+    <div class="load-text">ADA YÜKLENİYOR</div>
+    <div class="load-bar"><i></i></div>
+  </div>
+
+  <!-- ================= ANA MENÜ ================= -->
+  <div id="menu" class="overlay menu hidden">
+    <div class="menu-top">
+      <div class="brand">
+        <div class="brand-mark">IF</div>
+        <div>
+          <h1>ISLAND<span>FRONT</span></h1>
+          <p class="tagline">Bir ada. İki ordu. Tek hedef.</p>
+        </div>
+      </div>
+      <div class="menu-top-right">
+        <button id="menuSettingsBtn" class="top-util-btn" type="button">⚙ AYARLAR</button>
+        <button id="fullscreenBtn" class="top-util-btn" type="button">⛶ TAM EKRAN</button>
+        <div class="server-card">
+          <span class="dot"></span>
+          <div>
+            <b id="serverName">ADA-01 · ANA SUNUCU</b>
+            <small id="serverStatus">Bağlanıyor…</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-main">
+      <div class="menu-left">
+        <div class="kicker">ÇOK OYUNCULU · TARAYICI · 3D</div>
+        <h2>BÖLGEYİ<br /><em>ELE GEÇİR.</em></h2>
+        <p class="lead">
+          Kızıllar ve Maviler koca bir adada karşı karşıya. Komuta üslerini koru,
+          beş stratejik bölgeyi al, düşman üssüne bayrağını dik. Teknelerle kıyıyı
+          aş, scooterla cepheye yetiş. Zafer oynayanındır.
+        </p>
+        <div class="feature-row">
+          <div><b>7</b><span>BÖLGE</span></div>
+          <div><b>2</b><span>TAKIM</span></div>
+          <div><b>4</b><span>SİLAH</span></div>
+          <div><b>∞</b><span>REKABET</span></div>
+        </div>
+        <div class="menu-note">
+          <b>Nasıl kazanılır?</b> En az 3 bölgeyi tutmadan düşman komuta üssüne giremezsin.
+          Süre bitince skoru yüksek takım kazanır. Düşman üssünü almak maçı anında bitirir.
+        </div>
+      </div>
+
+      <div class="join-panel">
+        <div class="panel-head">
+          <span>SAVAŞA HAZIRLAN</span>
+          <i>01</i>
+        </div>
+
+        <label class="field-label" for="playerName">ÇAĞRI ADI</label>
+        <input id="playerName" class="name-input" maxlength="16" placeholder="Asker adını yaz" autocomplete="off" />
+
+        <div class="field-label">TAKIM SEÇ</div>
+        <div class="team-pick">
+          <button class="team-btn red selected" data-team="red">
+            <span class="team-emblem">▲</span>
+            <span><b>KIZILLAR</b><small id="redCount">0 çevrimiçi</small></span>
+            <i class="check"></i>
+          </button>
+          <button class="team-btn blue" data-team="blue">
+            <span class="team-emblem">◆</span>
+            <span><b>MAVİLER</b><small id="blueCount">0 çevrimiçi</small></span>
+            <i class="check"></i>
+          </button>
+        </div>
+
+        <div class="field-label">BAŞLANGIÇ SİLAHI</div>
+        <div id="weaponGrid" class="weapon-grid"></div>
+
+        <button id="playBtn" class="play-btn">
+          <span>SAVAŞA KATIL</span>
+          <i>↵</i>
+        </button>
+        <div id="menuError" class="menu-error"></div>
+        <div class="controls-mini">
+          <span><b>WASD/OK</b> hareket</span>
+          <span><b>SHIFT</b> koş / turbo</span>
+          <span><b>1</b> seçili silah</span>
+          <span><b>2 / Q</b> uzun bıçak</span>
+          <span><b>V</b> 1./3. şahıs</span>
+          <span><b>M</b> harita</span>
+          <span><b>E/F</b> tekne (3 kişi) / scooter</span>
+          <span><b>R</b> şarjör</span>
+          <span><b>ENTER/T</b> sohbet</span>
+          <span><b>J</b> konuşlan</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-footer">
+      <span>ISLAND FRONT v2.5 — US Special Forces Ada Operasyonu · 3 Kişilik Hücum Botu · Taktik Scooter</span>
+      <span>1: Seçili Ana Silah · 2/Q: Uzun Komando Bıçağı · V: 1./3. Şahıs · M: Taktik Harita</span>
+    </div>
+  </div>
+
+  <!-- ================= HUD ================= -->
+  <div id="hud" class="hidden">
+    <div class="topbar">
+      <div class="team-score red"><span>KIZILLAR</span><b id="scoreRed">0</b></div>
+      <div class="match-clock">
+        <small>MAÇ</small>
+        <b id="matchTimer">15:00</b>
+        <span id="zoneDots" class="zone-dots"></span>
+      </div>
+      <div class="team-score blue"><span>MAVİLER</span><b id="scoreBlue">0</b></div>
+    </div>
+
+    <div id="topLeftInstructions" class="top-instructions">
+      <div class="ti-head">
+        <span id="viewModeBadge" class="ti-badge">1. ŞAHIS (V)</span>
+        <span id="autoRunBadge" class="ti-badge accent hidden">OTO-KOŞU (H)</span>
+      </div>
+      <div class="ti-grid">
+        <span><b>1</b> Ana Silah</span>
+        <span><b>2/Q</b> Uzun Bıçak</span>
+        <span><b>V</b> Görünüm</span>
+        <span><b>M</b> Harita</span>
+        <span><b>E/F</b> Tekne/Araç</span>
+        <span><b>ENTER/T</b> Sohbet</span>
+        <span><b>J</b> Konuşlan</span>
+        <span><b>N</b> Ses</span>
+      </div>
+    </div>
+
+    <div class="compass-wrap"><div id="compass" class="compass"></div></div>
+
+    <div class="minimap-wrap">
+      <div id="zoneList" class="zone-list"></div>
+      <div class="minimap-box">
+        <div class="minimap-head"><span>TAKTİK HARİTA · [M]</span><b id="gridRef">D4 · N</b></div>
+        <canvas id="minimap" width="256" height="256"></canvas>
+      </div>
+    </div>
+
+    <div id="killfeed" class="killfeed"></div>
+    <div id="feed" class="feed"></div>
+
+    <div id="capturePanel" class="capture-panel hidden">
+      <div class="cap-top"><b id="capName">LİMAN</b><span id="capCounts">0 — 0</span></div>
+      <div class="cap-bar"><i id="capFill"></i></div>
+      <div class="cap-note" id="capNote">BÖLGEYİ ELE GEÇİR</div>
+    </div>
+
+    <div id="crosshair" class="crosshair">
+      <i class="ch-t"></i><i class="ch-b"></i><i class="ch-l"></i><i class="ch-r"></i>
+      <span class="ch-dot"></span>
+    </div>
+    <div id="hitmarker" class="hitmarker"><i></i><i></i><i></i><i></i></div>
+    <div id="scope" class="scope hidden">
+      <div class="scope-vignette"></div>
+      <div class="scope-line h"></div>
+      <div class="scope-line v"></div>
+      <div class="scope-mildots"></div>
+      <div class="scope-readout">SR-7 · 8×</div>
+    </div>
+
+    <div id="damageVignette" class="damage-vignette"></div>
+    <div id="damageDirs" class="damage-dirs"></div>
+
+    <div class="bottom-left">
+      <div class="player-tag"><i id="teamPip"></i><span id="hudName">ASKER</span><small id="hudRole">PİYADE</small></div>
+      <div class="health-row">
+        <div class="health-icon">+</div>
+        <div class="health-bar"><i id="healthFill"></i></div>
+        <b id="healthNum">100</b>
+      </div>
+      <div class="status-row">
+        <span id="protectTag" class="tag hidden">DOĞMA KORUMASI</span>
+        <span id="swimTag" class="tag hidden">YÜZÜYOR</span>
+        <span id="streakTag" class="tag hidden"></span>
+      </div>
+    </div>
+
+    <div class="bottom-right">
+      <div id="weaponHotbar" class="weapon-hotbar"></div>
+      <div class="weapon-name" id="weaponName">TABANCA <small>P-9</small></div>
+      <div class="ammo-row">
+        <b id="ammoNum">12</b><span>/</span><i id="ammoReserve">72</i>
+      </div>
+      <div class="reload-bar hidden" id="reloadBar"><i></i><span>ŞARJÖR</span></div>
+      <div class="weapon-hint" id="weaponHint">SOL TIK: ATEŞ · SAĞ TIK: NİŞAN · 1: SİLAH · 2/Q: BIÇAK</div>
+    </div>
+
+    <div id="vehiclePrompt" class="vehicle-prompt hidden"><b>E</b><span id="vehiclePromptText">SCOOTER'A BİN</span></div>
+    <div id="vehicleHud" class="vehicle-hud hidden">
+      <b id="vehSpeed">0</b><span>KM/S</span>
+      <div><i id="vehName">SCOOTER</i><small id="vehSeat">SÜRÜCÜ</small></div>
+      <em>R: ARACI DÜZELT · V: KAMERA</em>
+    </div>
+
+    <div id="chatBox" class="chat-box hidden">
+      <span id="chatScopeTag">GENEL SOHBET</span>
+      <input id="chatInput" maxlength="120" placeholder="Mesaj yaz (Enter: Gönder · Tab: Genel/Takım)…" autocomplete="off" />
+    </div>
+
+    <div id="scoreboard" class="scoreboard hidden">
+      <div class="sb-head"><span>SKOR TABLOSU</span><b id="sbScore">0 — 0</b></div>
+      <div class="sb-cols"><span>OYUNCU</span><span>SKOR</span><span>K</span><span>Ö</span></div>
+      <div id="sbRed" class="sb-team red"></div>
+      <div id="sbBlue" class="sb-team blue"></div>
+      <div class="sb-foot">TAB ile kapat · İlk 3 bölge düşman üssünü açar</div>
+    </div>
+
+    <div class="crosshair-hint" id="interactHint"></div>
+
+    <!-- ================= OYUN İÇİ TAKTİK HARİTA (M) ================= -->
+    <div id="tacticalMapModal" class="tactical-map-modal hidden">
+      <div class="tm-panel">
+        <div class="tm-head">
+          <div>
+            <span>CEPHE & SEKTÖR HARİTASI</span>
+            <small id="tmCoords">Koordinat: 800.Kuzey 800.Doğu · Sektör D4</small>
+          </div>
+          <button id="tmCloseBtn" class="tm-close" type="button">KAPAT (M)</button>
+        </div>
+        <canvas id="tacticalMapCanvas" width="420" height="420"></canvas>
+        <div class="tm-legend">
+          <span><i class="lg-red"></i> Kızıl Hakimiyet</span>
+          <span><i class="lg-blue"></i> Mavi Hakimiyet</span>
+          <span><i class="lg-contest"></i> Çatışma Bölgesi</span>
+          <span><i class="lg-me"></i> Konumun</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= DOĞMA EKRANI (TAKTİK HARİTALI) ================= -->
+  <div id="respawn" class="overlay respawn hidden">
+    <div class="respawn-panel">
+      <div class="dead-head">
+        <div>
+          <span>CEPHEYE YENİDEN KONUŞLAN</span>
+          <p id="deathInfo">Haritadan takımının kontrolündeki yanıp sönen bir bölge seç.</p>
+        </div>
+        <b id="respawnTimer">5</b>
+      </div>
+
+      <div class="respawn-body">
+        <div class="respawn-map-col">
+          <div class="rm-top">
+            <span>DOĞMA HARİTASI (YANIP SÖNEN BÖLGEYE TIKLA)</span>
+            <b id="respawnCoords">800.K 800.D</b>
+          </div>
+          <div class="rm-canvas-wrap">
+            <canvas id="respawnMap" width="320" height="320"></canvas>
+          </div>
+          <div id="respawnZoneWarning" class="rm-warning">
+            Seçili Bölge: <b id="selectedZoneName">Komuta Üssü</b>
+          </div>
+        </div>
+
+        <div class="respawn-loadout-col">
+          <div class="field-label">YENİ DOĞUŞ İÇİN ANA SİLAHINI SEÇ (+ UZUN BIÇAK VARSAYILAN)</div>
+          <div id="respawnWeapons" class="weapon-grid respawn-grid"></div>
+          <button id="deployBtn" class="play-btn" disabled><span>SEÇİLİ ÜSTE DOĞ</span><i>↵</i></button>
+          <small class="respawn-note">Seçtiğin ana silah (1) ve varsayılan Uzun Komando Bıçağı (2 / Q) ile doğarsın. Ana silahını her yeniden doğuşta değiştirebilirsin.</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SONUÇ ================= -->
+  <div id="results" class="overlay results hidden">
+    <div class="results-panel">
+      <div class="result-kicker">MAÇ SONUCU</div>
+      <h2 id="resultTitle">KIZILLAR KAZANDI</h2>
+      <div class="result-score"><b id="resultRed">0</b><span>—</span><b id="resultBlue">0</b></div>
+      <div id="resultReason" class="result-reason">Komuta üssü ele geçirildi</div>
+      <div id="resultStats" class="result-stats"></div>
+      <div class="result-reset">Yeni maç: <b id="resetTimer">20</b> sn</div>
+    </div>
+  </div>
+
+  <!-- ================= DURAKLAT ================= -->
+  <div id="pause" class="overlay pause hidden">
+    <div class="pause-panel">
+      <div class="result-kicker">TAKTİK MENÜ</div>
+      <h2>SAVAŞ DURMADI</h2>
+      <p>Canlı cephe bağlantın açık. Ayarları düzenleyebilir veya savaşa dönebilirsin.</p>
+      <button id="resumeBtn" class="play-btn"><span>SAVAŞA DÖN</span><i>▶</i></button>
+      <div class="pause-actions-grid">
+        <button id="pauseSettingsBtn" class="ghost-btn" type="button">⚙ AYARLAR</button>
+        <button id="redeployBtn" class="ghost-btn" type="button">↻ KONUŞLAN (J)</button>
+      </div>
+      <button id="leaveBtn" class="ghost-btn danger">MAÇTAN AYRIL</button>
+      <div class="controls-grid">
+        <span><b>WASD/OK</b> Hareket</span><span><b>SHIFT</b> Koş</span>
+        <span><b>CTRL/C</b> Eğil</span><span><b>SPACE</b> Zıpla</span>
+        <span><b>SOL TIK</b> Ateş / Bıçak</span><span><b>SAĞ TIK</b> Nişan</span>
+        <span><b>1 / 2 / Q</b> Silah / Bıçak</span><span><b>V</b> 1./3. Şahıs</span>
+        <span><b>M</b> Taktik Harita</span><span><b>E / F</b> Araç</span>
+        <span><b>ENTER / T</b> Sohbet</span><span><b>J</b> Konuşlan</span>
+        <span><b>H</b> Oto-Koşu</span><span><b>TAB</b> Skor</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= AYARLAR & YAPILANDIRMA (REDCOATS.IO PARITY) ================= -->
+  <div id="settingsModal" class="overlay settings-modal hidden">
+    <div class="settings-panel">
+      <div class="panel-head">
+        <span>YAPILANDIRMA & KONTROLLER</span>
+        <button id="settingsCloseBtn" class="tm-close" type="button">KAPAT ✕</button>
+      </div>
+
+      <div class="settings-row">
+        <label for="sensSlider">FARE HASSASİYETİ <b id="sensVal">1.0</b></label>
+        <input id="sensSlider" type="range" min="0.2" max="2.5" step="0.05" value="1.0" />
+      </div>
+
+      <div class="settings-row">
+        <label for="volSlider">SES SEVİYESİ <b id="volVal">60%</b></label>
+        <input id="volSlider" type="range" min="0" max="100" step="1" value="60" />
+      </div>
+
+      <div class="settings-grid-2">
+        <div class="settings-row">
+          <label for="qualitySelect">GRAFİK MODU</label>
+          <select id="qualitySelect" class="settings-select">
+            <option value="normal">Normal (Yüksek Detay)</option>
+            <option value="low">Düşük (Dengeli FPS)</option>
+            <option value="lowest">En Düşük (Maksimum FPS)</option>
+          </select>
+        </div>
+
+        <div class="settings-row">
+          <label for="scrollSelect">SİLAH KAYDIRMA (TEKERLEK)</label>
+          <select id="scrollSelect" class="settings-select">
+            <option value="normal">Normal</option>
+            <option value="inverted">Ters (Inverted)</option>
+            <option value="off">Kapalı</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-toggles">
+        <label class="toggle-item"><input id="hideInstructionsToggle" type="checkbox" /> <span>Sol üst kısayol ipuçlarını gizle</span></label>
+        <label class="toggle-item"><input id="soundEnableToggle" type="checkbox" checked /> <span>Sesi etkinleştir (N)</span></label>
+        <label class="toggle-item"><input id="chatEnableToggle" type="checkbox" checked /> <span>Oyun içi sohbeti göster (Enter / T)</span></label>
+        <label class="toggle-item"><input id="autoRunToggle" type="checkbox" checked /> <span>Tekrarlı tuş / Otomatik koşu (H)</span></label>
+      </div>
+
+      <div class="settings-foot">
+        <button id="settingsResetBtn" class="ghost-btn" type="button">VARSAYILANA SIFIRLA</button>
+        <button id="settingsSaveBtn" class="play-btn" type="button"><span>KAYDET & DÖN</span><i>✓</i></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <div id="debug" class="debug hidden"></div>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

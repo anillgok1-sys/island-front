@@ -1,0 +1,197 @@
+// Silah tanımları. Hem sunucu hem istemci aynı değerleri kullanır.
+export const WEAPONS = {
+  pistol: {
+    id: 'pistol',
+    name: 'Tabanca',
+    shortName: 'P-9',
+    className: 'Öncü Süvari',
+    classBadge: 'SCOOTER',
+    slot: 1,
+    description: 'Dengeli yarı otomatik. Seçersen yanında kişisel scooter ile doğarsın.',
+    damage: 26,
+    headMultiplier: 2,
+    limbMultiplier: 0.78,
+    pellets: 1,
+    rpm: 330,
+    magSize: 12,
+    reserve: 72,
+    reloadTime: 1.45,
+    spreadHip: 0.014,
+    spreadAim: 0.004,
+    spreadMove: 0.018,
+    recoil: 0.022,
+    range: 180,
+    falloffStart: 55,
+    falloffEnd: 140,
+    falloffMin: 0.55,
+    auto: false,
+    adsFov: 58,
+    scope: false,
+    crosshair: 'cross',
+    color: '#e8c46a',
+    audio: 'pistol',
+    starterScooter: true,
+  },
+  shotgun: {
+    id: 'shotgun',
+    name: 'Pompalı Tüfek',
+    shortName: 'P-12',
+    className: 'Baskın Birliği',
+    classBadge: '8 SAÇMA',
+    slot: 2,
+    description: 'Yakın mesafede yıkıcı. 8 saçma, tek isabetle iki düşmanı devirebilir.',
+    damage: 14,
+    headMultiplier: 1.5,
+    limbMultiplier: 0.8,
+    pellets: 8,
+    rpm: 78,
+    magSize: 6,
+    reserve: 36,
+    reloadTime: 2.5,
+    spreadHip: 0.052,
+    spreadAim: 0.042,
+    spreadMove: 0.02,
+    recoil: 0.075,
+    range: 52,
+    falloffStart: 14,
+    falloffEnd: 42,
+    falloffMin: 0.28,
+    auto: false,
+    adsFov: 64,
+    scope: false,
+    crosshair: 'shotgun',
+    color: '#d8a25a',
+    audio: 'shotgun',
+    starterScooter: false,
+  },
+  sniper: {
+    id: 'sniper',
+    name: 'Keskin Nişancı',
+    shortName: 'SR-7',
+    className: 'Keskin Nişancı',
+    classBadge: '8× DÜRBÜN',
+    slot: 3,
+    description: 'Uzun menzil, tek atışta ölümcül kafa vuruşu. Yavaş ve acımasız.',
+    damage: 88,
+    headMultiplier: 2,
+    limbMultiplier: 0.85,
+    pellets: 1,
+    rpm: 46,
+    magSize: 5,
+    reserve: 25,
+    reloadTime: 3,
+    spreadHip: 0.06,
+    spreadAim: 0.0004,
+    spreadMove: 0.08,
+    recoil: 0.11,
+    range: 650,
+    falloffStart: 300,
+    falloffEnd: 650,
+    falloffMin: 0.8,
+    auto: false,
+    adsFov: 22,
+    scope: true,
+    crosshair: 'sniper',
+    color: '#9fb7c9',
+    audio: 'sniper',
+    starterScooter: false,
+  },
+  lmg: {
+    id: 'lmg',
+    name: 'Hafif Taramalı',
+    shortName: 'LMG-60',
+    className: 'Ağır Destek',
+    classBadge: '60 MERMİ',
+    slot: 4,
+    description: '60 mermilik şarjör, yüksek atış hızı. Baskı kurmak için tasarlandı.',
+    damage: 19,
+    headMultiplier: 1.7,
+    limbMultiplier: 0.8,
+    pellets: 1,
+    rpm: 640,
+    magSize: 60,
+    reserve: 180,
+    reloadTime: 3.6,
+    spreadHip: 0.036,
+    spreadAim: 0.017,
+    spreadMove: 0.03,
+    recoil: 0.012,
+    range: 260,
+    falloffStart: 70,
+    falloffEnd: 220,
+    falloffMin: 0.5,
+    auto: true,
+    adsFov: 55,
+    scope: false,
+    crosshair: 'lmg',
+    color: '#a9b36b',
+    audio: 'lmg',
+    starterScooter: false,
+  },
+  knife: {
+    id: 'knife',
+    name: 'Uzun Komando Bıçağı',
+    shortName: 'M9-K',
+    className: 'Yakın Dövüş',
+    classBadge: 'BIÇAK',
+    slot: 2,
+    melee: true,
+    speedMult: 1.12,
+    description: 'Varsayılan uzun taktik komando bıçağı. Eldeyken hareket hızı %12 artar, yakın mesafede ölümcüldür.',
+    damage: 58,
+    headMultiplier: 1.9,
+    limbMultiplier: 0.9,
+    pellets: 1,
+    rpm: 115,
+    magSize: 1,
+    reserve: 0,
+    reloadTime: 0,
+    spreadHip: 0,
+    spreadAim: 0,
+    spreadMove: 0,
+    recoil: 0.012,
+    range: 3.1,
+    falloffStart: 2.5,
+    falloffEnd: 3.1,
+    falloffMin: 0.9,
+    auto: true,
+    adsFov: 74,
+    scope: false,
+    crosshair: 'knife',
+    color: '#cfd8dc',
+    audio: 'knife',
+    starterScooter: false,
+  },
+};
+
+export const WEAPON_ORDER = ['pistol', 'shotgun', 'sniper', 'lmg'];
+export const PRIMARY_WEAPONS = WEAPON_ORDER;
+
+export function weaponFor(id) {
+  return WEAPONS[id] || WEAPONS.pistol;
+}
+
+export function isPrimaryWeapon(id) {
+  return PRIMARY_WEAPONS.includes(id);
+}
+
+export function fireInterval(id) {
+  return 60 / weaponFor(id).rpm;
+}
+
+export function damageAtRange(weapon, distance) {
+  if (distance <= weapon.falloffStart) return weapon.damage;
+  if (distance >= weapon.falloffEnd) return weapon.damage * weapon.falloffMin;
+  const t = (distance - weapon.falloffStart) / (weapon.falloffEnd - weapon.falloffStart);
+  return weapon.damage * (1 - t * (1 - weapon.falloffMin));
+}
+
+// Oyuncu yalnızca seçtiği ana silahı (Slot 1) ve varsayılan uzun bıçağı (Slot 2) taşır.
+export function createLoadout(primaryId = 'pistol') {
+  const primary = isPrimaryWeapon(primaryId) ? primaryId : 'pistol';
+  const pw = WEAPONS[primary];
+  return {
+    [primary]: { ammo: pw.magSize, reserve: pw.reserve },
+    knife: { ammo: 1, reserve: 0 },
+  };
+}
